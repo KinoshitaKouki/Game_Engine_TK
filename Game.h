@@ -5,14 +5,13 @@
 #pragma once
 
 #include "StepTimer.h"
-#include "pch.h"
-#include "Game.h"
+#include "DebugCamera.h"
+
 #include <PrimitiveBatch.h>
 #include <VertexTypes.h>
 #include <Effects.h>
 #include <CommonStates.h>
 #include <SimpleMath.h>
-#include "DebugCamera.h"
 #include <Model.h>
 
 
@@ -93,9 +92,17 @@ private:
 
 	//エフェクトファクトリ
 	std::unique_ptr<DirectX::EffectFactory>m_factory;
-	//モデル
+	//地面モデル
 	std::unique_ptr<DirectX::Model>m_modelGround;
-	//モデル
+	//球モデル
 	std::unique_ptr<DirectX::Model>m_modelSkyDome;
+	
+	//球のワールド行列
+	DirectX::SimpleMath::Matrix m_worldBall[20];
 
+	//地面のワールド行列
+	DirectX::SimpleMath::Matrix m_worldGround[40000];
+
+
+	int m_count;
 };

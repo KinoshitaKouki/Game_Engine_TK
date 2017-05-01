@@ -32,10 +32,13 @@
     </Manifest>
   </ItemGroup>
   <ItemGroup>
-    <MeshContentTask Include="..\..\..\..\..\DirectXTK\Assets\ground1m.FBX">
+    <MeshContentTask Include="Assets\aaa.FBX">
       <Filter>Assets</Filter>
     </MeshContentTask>
     <MeshContentTask Include="Assets\SkyDome.FBX">
+      <Filter>Assets</Filter>
+    </MeshContentTask>
+    <MeshContentTask Include="Assets\ground.FBX">
       <Filter>Assets</Filter>
     </MeshContentTask>
   </ItemGroup>

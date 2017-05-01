@@ -4,11 +4,6 @@
 
 #include "pch.h"
 #include "Game.h"
-#include <PrimitiveBatch.h>
-#include <VertexTypes.h>
-#include <Effects.h>
-#include <CommonStates.h>
-#include <SimpleMath.h>
 
 
 extern void ExitGame();
@@ -49,14 +44,21 @@ void Game::Initialize(HWND window, int width, int height)
     m_timer.SetTargetElapsedSeconds(1.0 / 60);
     */
 	//独自の初期化はここに書く
-	m_batch = std::make_unique<PrimitiveBatch<VertexPositionNormal>>(m_d3dContext.Get());
 
-	
+	m_batch = std::make_unique<PrimitiveBatch<VertexPositionNormal>>(m_d3dContext.Get());
 
 	m_effect = std::make_unique<BasicEffect>(m_d3dDevice.Get());
 
-	m_effect->SetProjection(XMMatrixOrthographicOffCenterRH(0,
-		m_outputWidth, m_outputHeight, 0, 0, 1));
+	m_view = Matrix::CreateLookAt(Vector3(2.f, 2.f, 2.f), Vector3::Zero, Vector3::UnitY);
+
+	m_proj = Matrix::CreatePerspectiveFieldOfView(XM_PI / 4.f, float(m_outputWidth) / float(m_outputHeight), 0.1f, 500.f);
+	
+	m_effect->SetView(m_view);
+	m_effect->SetProjection(m_proj);
+	
+
+	/*m_effect->SetProjection(XMMatrixOrthographicOffCenterRH(0,
+		m_outputWidth, m_outputHeight, 0, 0, 1));*/
 	m_effect->SetVertexColorEnabled(true);
 
 	void const* shaderByteCode;
@@ -74,16 +76,19 @@ void Game::Initialize(HWND window, int width, int height)
 	//デバッグカメラを生成
 	m_debugCamera = std::make_unique<DebugCamera>(m_outputWidth, m_outputHeight);
 
-	
 	//エフェクトファクトリ
 	m_factory = std::make_unique<EffectFactory>(m_d3dDevice.Get());
+
 	//テクスチャのパスを指定
 	m_factory->SetDirectory(L"Resources");
 	
 	//球モデル
 	m_modelSkyDome = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources\\SkyDome.cmo", *m_factory);
 	//地面モデル
-	m_modelGround = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources\\ground1m.cmo", *m_factory);
+	m_modelGround = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources\\ground.cmo", *m_factory);
+
+	//カウントの初期化
+	m_count = 0;
 	
 
 }
@@ -102,12 +107,59 @@ void Game::Tick()
 // Updates the world.
 void Game::Update(DX::StepTimer const& timer)
 {
-    float elapsedTime = float(timer.GetElapsedSeconds());
+	float elapsedTime = float(timer.GetElapsedSeconds());
 
-    // TODO: Add your game logic here.
-    elapsedTime;
+	// TODO: Add your game logic here.
+	elapsedTime;
 	//毎フレーム処理を追加する
 	m_debugCamera->Update();
+
+	//ビュー行列の取得
+	m_view = m_debugCamera->GetCameraMatrix();
+
+	m_count++;
+	//ワールド行列を計算
+	//スケーリング
+
+	for (int i = 0; i < 20; i++)
+	{
+		Matrix scalemat = Matrix::CreateScale(0.05f);
+		//ロール
+		Matrix rotmatz;
+		//内側の球
+		if (i < 10)
+		{
+			rotmatz = Matrix::CreateRotationZ(XMConvertToRadians(36.0f * i + m_count));
+		}
+		//外側の球
+		else
+		{
+			rotmatz = Matrix::CreateRotationZ(XMConvertToRadians(36.0f * i - m_count));
+		}
+		//ピッチ(仰角)
+		Matrix rotmatx = Matrix::CreateRotationX(0);
+		//ヨー(方位角)
+		Matrix rotmaty = Matrix::CreateRotationY(0);
+		//球の回転行列
+		Matrix rotmat = rotmatz * rotmatx * rotmaty;
+		//球の平行移動
+		Matrix transmat = Matrix::CreateTranslation(20 + (i / 10 * 20), 0, 0);
+		//球のワールド行列
+		m_worldBall[i] = scalemat * transmat * rotmat;
+
+	}
+
+	//地面
+	for (int i = 0; i < 40000; i++)
+	{
+
+		//ピッチ(仰角)
+		Matrix rotmatx = Matrix::CreateRotationX(XMConvertToRadians(90));
+		//地面の平行移動
+		Matrix transmat = Matrix::CreateTranslation(i / 200 - 100, -50, i % 200 - 100);
+		//ワールド行列
+		m_worldGround[i] =  transmat * rotmatx;
+	}
 }
 
 // Draws the scene.
@@ -123,7 +175,7 @@ void Game::Render()
 	//頂点座標
 	VertexPositionNormal vertices[] =
 	{
-		{Vector3(-1.0f,+1.0f,0.0f),Vector3(0.0f,0.0f,+1.0f)},
+		{ Vector3(-1.0f,+1.0f,0.0f),Vector3(0.0f,0.0f,+1.0f) },
 		{ Vector3(-1.0f,-1.0f,0.0f),Vector3(0.0f,0.0f,+1.0f) },
 		{ Vector3(+1.0f,+1.0f,0.0f),Vector3(0.0f,0.0f,+1.0f) },
 		{ Vector3(+1.0f,-1.0f,0.0f),Vector3(0.0f,0.0f,+1.0f) },
@@ -139,7 +191,8 @@ void Game::Render()
     // TODO: Add your rendering code here.
 	
 	//描画処理を追加する
-	//CommonStates states(m_d3dDevice.Get());
+	DirectX::CommonStates states(m_d3dDevice.Get());
+
 	m_d3dContext->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
 	m_d3dContext->OMSetDepthStencilState(m_states->DepthNone(), 0);
 	m_d3dContext->RSSetState(m_states->CullNone());
@@ -155,15 +208,16 @@ void Game::Render()
 	//);
 
 	//デバッグカメラからビュー行列を取得
-	m_view = m_debugCamera->GetCameraMatrix();
+	//m_view = m_debugCamera->GetCameraMatrix();
 	//プロジェクション行列を作成
-	m_proj = Matrix::CreatePerspectiveFieldOfView(
+	/*m_proj = Matrix::CreatePerspectiveFieldOfView(
 		XM_PI / 4.f, //視野角
 		float(m_outputWidth) / float(m_outputHeight), //アスペクト比
 		0.1f, //ニアクリップ
 		500.f  //ファークリップ
-	);
+	);*/
 
+	m_effect->SetWorld(m_world);
 	m_effect->SetView(m_view);
 	m_effect->SetProjection(m_proj);
 
@@ -172,9 +226,18 @@ void Game::Render()
 
 	//モデルの描画
 	//地面
-	m_modelGround->Draw(m_d3dContext.Get(), *m_states, m_world, m_view, m_proj);
+	for (int i = 0; i < 40000; i++)
+	{
+		m_modelGround->Draw(m_d3dContext.Get(), *m_states, m_worldGround[i], m_view, m_proj);
+	}
+
 	//球
-	m_modelSkyDome->Draw(m_d3dContext.Get(), *m_states, m_world, m_view, m_proj);
+	for (int i = 0;  i < 20; i++)
+	{
+
+		m_modelSkyDome->Draw(m_d3dContext.Get(), *m_states, m_worldBall[i], m_view, m_proj);
+	}
+	
 
 	m_batch->Begin();
 

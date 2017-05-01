@@ -1,17 +1,15 @@
 ﻿  Assets\aaa.FBX
   Assets\ground.FBX
+  Assets\Ground200m.FBX
   Assets\SkyDome.FBX
-  pch.cpp
-  DebugCamera.cpp
   Game.cpp
 Game.cpp(146): warning C4244: '引数': 'int' から 'float' への変換です。データが失われる可能性があります。
 Game.cpp(159): warning C4244: '引数': 'int' から 'float' への変換です。データが失われる可能性があります。
-  Main.cpp
      ライブラリ C:\Users\s162056\Documents\ゲームエンジン_DirectXTK\GameEngine_TK\Release\GameEngine_TK.lib とオブジェクト C:\Users\s162056\Documents\ゲームエンジン_DirectXTK\GameEngine_TK\Release\GameEngine_TK.exp を作成中
   コード生成しています。
-  441 of 442 functions (99.8%) were compiled, the rest were copied from previous compilation.
-    279 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+  1 of 442 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    1 functions had inline decision re-evaluated but remain unchanged
   コード生成が終了しました。
   GameEngine_TK.vcxproj -> C:\Users\s162056\Documents\ゲームエンジン_DirectXTK\GameEngine_TK\Release\GameEngine_TK.exe
   GameEngine_TK.vcxproj -> C:\Users\s162056\Documents\ゲームエンジン_DirectXTK\GameEngine_TK\Release\GameEngine_TK.pdb (Full PDB)

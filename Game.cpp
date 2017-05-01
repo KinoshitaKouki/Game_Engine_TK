@@ -85,7 +85,7 @@ void Game::Initialize(HWND window, int width, int height)
 	//球モデル
 	m_modelSkyDome = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources\\SkyDome.cmo", *m_factory);
 	//地面モデル
-	m_modelGround = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources\\ground.cmo", *m_factory);
+	m_modelGround = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources\\Ground200m.cmo", *m_factory);
 
 	//カウントの初期化
 	m_count = 0;
@@ -156,9 +156,9 @@ void Game::Update(DX::StepTimer const& timer)
 		//ピッチ(仰角)
 		Matrix rotmatx = Matrix::CreateRotationX(XMConvertToRadians(90));
 		//地面の平行移動
-		Matrix transmat = Matrix::CreateTranslation(i / 200 - 100, -50, i % 200 - 100);
+		Matrix transmat = Matrix::CreateTranslation(-10, -10, 10);
 		//ワールド行列
-		m_worldGround[i] =  transmat * rotmatx;
+		m_worldGround =  transmat * rotmatx;
 	}
 }
 
@@ -226,10 +226,10 @@ void Game::Render()
 
 	//モデルの描画
 	//地面
-	for (int i = 0; i < 40000; i++)
-	{
-		m_modelGround->Draw(m_d3dContext.Get(), *m_states, m_worldGround[i], m_view, m_proj);
-	}
+	//for (int i = 0; i < 40000; i++)
+	//{
+		m_modelGround->Draw(m_d3dContext.Get(), *m_states, m_worldGround, m_view, m_proj);
+	//}
 
 	//球
 	for (int i = 0;  i < 20; i++)

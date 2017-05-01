@@ -101,7 +101,7 @@ private:
 	DirectX::SimpleMath::Matrix m_worldBall[20];
 
 	//地面のワールド行列
-	DirectX::SimpleMath::Matrix m_worldGround[40000];
+	DirectX::SimpleMath::Matrix m_worldGround;
 
 
 	int m_count;

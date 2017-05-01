@@ -1,8 +1,8 @@
 ﻿  Assets\aaa.FBX
   Assets\ground.FBX
+  Assets\Ground200m.FBX
   Assets\SkyDome.FBX
   Game.cpp
 c:\users\s162056\documents\ゲームエンジン_directxtk\gameengine_tk\gameengine_tk\game.cpp(146): warning C4244: '引数': 'int' から 'float' への変換です。データが失われる可能性があります。
-c:\users\s162056\documents\ゲームエンジン_directxtk\gameengine_tk\gameengine_tk\game.cpp(159): warning C4244: '引数': 'int' から 'float' への変換です。データが失われる可能性があります。
   GameEngine_TK.vcxproj -> C:\Users\s162056\Documents\ゲームエンジン_DirectXTK\GameEngine_TK\Debug\GameEngine_TK.exe
   GameEngine_TK.vcxproj -> C:\Users\s162056\Documents\ゲームエンジン_DirectXTK\GameEngine_TK\Debug\GameEngine_TK.pdb (Full PDB)

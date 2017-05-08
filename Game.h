@@ -12,6 +12,7 @@
 #include <Effects.h>
 #include <CommonStates.h>
 #include <SimpleMath.h>
+#include <Keyboard.h>
 #include <Model.h>
 
 
@@ -79,6 +80,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_Layout;
 	//汎用ステート
 	std::unique_ptr<DirectX::CommonStates> m_states;
+	//キーボード
+	std::unique_ptr<DirectX::Keyboard> keyboard;
 
 	//ワールド行列
 	DirectX::SimpleMath::Matrix m_world;
@@ -92,10 +95,18 @@ private:
 
 	//エフェクトファクトリ
 	std::unique_ptr<DirectX::EffectFactory>m_factory;
+
 	//地面モデル
 	std::unique_ptr<DirectX::Model>m_modelGround;
+
 	//球モデル
 	std::unique_ptr<DirectX::Model>m_modelSkyDome;
+
+	//頭のモデル
+	std::unique_ptr<DirectX::Model>m_modelHead;
+	
+	//ティーポットモデル
+	std::unique_ptr<DirectX::Model>m_modelTeaPot;
 	
 	//球のワールド行列
 	DirectX::SimpleMath::Matrix m_worldBall[20];
@@ -103,6 +114,16 @@ private:
 	//地面のワールド行列
 	DirectX::SimpleMath::Matrix m_worldGround;
 
+	//ティーポットのワールド行列
+	DirectX::SimpleMath::Matrix m_worldTeaPot;
+
+	//頭のワールド行列
+	DirectX::SimpleMath::Matrix head_world;
+
+	//頭のポジション
+	DirectX::SimpleMath::Vector3 head_pos;
+
+	float head_rot;
 
 	int m_count;
 };

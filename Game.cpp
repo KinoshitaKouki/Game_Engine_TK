@@ -5,7 +5,6 @@
 #include "pch.h"
 #include "Game.h"
 
-
 extern void ExitGame();
 
 using namespace DirectX;
@@ -14,9 +13,7 @@ using namespace DirectX::SimpleMath;
 using Microsoft::WRL::ComPtr;
 
 //グローバル変数
-std::unique_ptr<PrimitiveBatch<VertexPositionColor>> primitiveBatch;
-std::unique_ptr<BasicEffect> basicEffect;
-ComPtr<ID3D11InputLayout> inputLayout;
+
 
 Game::Game() :
     m_window(0),
@@ -79,6 +76,7 @@ void Game::Initialize(HWND window, int width, int height)
 	//エフェクトファクトリ
 	m_factory = std::make_unique<EffectFactory>(m_d3dDevice.Get());
 
+
 	//テクスチャのパスを指定
 	m_factory->SetDirectory(L"Resources");
 	
@@ -86,10 +84,19 @@ void Game::Initialize(HWND window, int width, int height)
 	m_modelSkyDome = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources\\SkyDome.cmo", *m_factory);
 	//地面モデル
 	m_modelGround = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources\\Ground200m.cmo", *m_factory);
+	//ティーポットモデル
+	//m_modelTeaPot = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources\\TeaPot.cmo", *m_factory);
+	//頭のモデル
+	m_modelHead = Model::CreateFromCMO(m_d3dDevice.Get(), L"Resources\\head.cmo", *m_factory);
 
 	//カウントの初期化
 	m_count = 0;
 	
+	//キーボード
+	keyboard = std::make_unique<Keyboard>();
+
+	//回転角の初期化
+	head_rot = 0.0f;
 
 }
 
@@ -121,45 +128,95 @@ void Game::Update(DX::StepTimer const& timer)
 	//ワールド行列を計算
 	//スケーリング
 
-	for (int i = 0; i < 20; i++)
-	{
-		Matrix scalemat = Matrix::CreateScale(0.05f);
-		//ロール
-		Matrix rotmatz;
-		//内側の球
-		if (i < 10)
-		{
-			rotmatz = Matrix::CreateRotationZ(XMConvertToRadians(36.0f * i + m_count));
-		}
-		//外側の球
-		else
-		{
-			rotmatz = Matrix::CreateRotationZ(XMConvertToRadians(36.0f * i - m_count));
-		}
-		//ピッチ(仰角)
-		Matrix rotmatx = Matrix::CreateRotationX(0);
-		//ヨー(方位角)
-		Matrix rotmaty = Matrix::CreateRotationY(0);
-		//球の回転行列
-		Matrix rotmat = rotmatz * rotmatx * rotmaty;
-		//球の平行移動
-		Matrix transmat = Matrix::CreateTranslation(20 + (i / 10 * 20), 0, 0);
-		//球のワールド行列
-		m_worldBall[i] = scalemat * transmat * rotmat;
+	//for (int i = 0; i < 20; i++)
+	//{
+	//	Matrix scalemat = Matrix::CreateScale(0.05f);
+	//	//ロール
+	//	Matrix rotmatz;
+	//	//内側の球
+	//	if (i < 10)
+	//	{
+	//		rotmatz = Matrix::CreateRotationZ(XMConvertToRadians(36.0f * i + m_count));
+	//	}
+	//	//外側の球
+	//	else
+	//	{
+	//		rotmatz = Matrix::CreateRotationZ(XMConvertToRadians(36.0f * i - m_count));
+	//	}
+	//	//ピッチ(仰角)
+	//	Matrix rotmatx = Matrix::CreateRotationX(0);
+	//	//ヨー(方位角)
+	//	Matrix rotmaty = Matrix::CreateRotationY(0);
+	//	//球の回転行列
+	//	Matrix rotmat = rotmatz * rotmatx * rotmaty;
+	//	//球の平行移動
+	//	Matrix transmat = Matrix::CreateTranslation(20 + (i / 10 * 20), 0, 0);
+	//	//球のワールド行列
+	//	m_worldBall[i] = scalemat * transmat * rotmat;
 
-	}
+	//}
 
 	//地面
-	for (int i = 0; i < 40000; i++)
-	{
+	/*for (int i = 0; i < 40000; i++)
+	{*/
 
 		//ピッチ(仰角)
-		Matrix rotmatx = Matrix::CreateRotationX(XMConvertToRadians(90));
+		//Matrix rotmatx = Matrix::CreateRotationX(XMConvertToRadians(90));
 		//地面の平行移動
-		Matrix transmat = Matrix::CreateTranslation(-10, -10, 10);
+		//Matrix transmat = Matrix::CreateTranslation();
 		//ワールド行列
-		m_worldGround =  transmat * rotmatx;
+		//m_worldGround =  transmat * rotmatx;
+	//}
+
+	//キーボード
+	auto kb = keyboard->GetState();
+
+	if (kb.Back)
+	{
+		// Backspace key is down
 	}
+	if (kb.W)
+	{
+		Vector3 moveV(0, 0, -0.1f);
+		//自機の座標を移動
+		moveV = Vector3::TransformNormal(moveV, head_world);
+		
+		head_pos += moveV;
+	}
+	if (kb.A)
+	{
+		head_rot += 0.03f;
+	}
+	if (kb.S)
+	{
+		Vector3 moveV(0, 0, 0.1f);
+
+		//自機の座標を移動
+		moveV = Vector3::TransformNormal(moveV, head_world);
+		
+		head_pos += moveV;
+	}
+	if (kb.D)
+	{
+		head_rot += -0.03f;
+	}
+	if (kb.LeftShift)
+	{
+		// Left shift key is down
+	}
+	if (kb.RightShift)
+	{
+		// Right shift key is down
+	}
+	//if (kb.IsKeyDown(VK_RETURN))
+	{
+		// Return key is down
+	}
+	
+	Matrix transmat = Matrix::CreateTranslation(head_pos);
+	Matrix rotmat = Matrix::CreateRotationY(head_rot);
+	head_world = rotmat * transmat;
+	
 }
 
 // Draws the scene.
@@ -228,16 +285,22 @@ void Game::Render()
 	//地面
 	//for (int i = 0; i < 40000; i++)
 	//{
-		m_modelGround->Draw(m_d3dContext.Get(), *m_states, m_worldGround, m_view, m_proj);
+		m_modelGround->Draw(m_d3dContext.Get(), *m_states, Matrix::Identity, m_view, m_proj);
 	//}
 
 	//球
-	for (int i = 0;  i < 20; i++)
-	{
+	/*for (int i = 0;  i < 20; i++)
+	{*/
 
-		m_modelSkyDome->Draw(m_d3dContext.Get(), *m_states, m_worldBall[i], m_view, m_proj);
-	}
+		m_modelSkyDome->Draw(m_d3dContext.Get(), *m_states, Matrix::Identity, m_view, m_proj);
+	//}
 	
+	//時機のワールド行列を計算する
+
+		
+
+	//頭
+		m_modelHead->Draw(m_d3dContext.Get(), *m_states, head_world , m_view, m_proj);
 
 	m_batch->Begin();
 

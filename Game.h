@@ -6,6 +6,8 @@
 
 #include "StepTimer.h"
 #include "DebugCamera.h"
+#include "Camera.h"
+#include "FollowCamera.h"
 
 #include <PrimitiveBatch.h>
 #include <VertexTypes.h>
@@ -14,6 +16,7 @@
 #include <SimpleMath.h>
 #include <Keyboard.h>
 #include <Model.h>
+
 
 
 // A basic game implementation that creates a D3D11 device and
@@ -126,4 +129,7 @@ private:
 	float head_rot;
 
 	int m_count;
+
+	//ƒJƒƒ‰
+	std::unique_ptr<FollowCamera>m_Camera;
 };

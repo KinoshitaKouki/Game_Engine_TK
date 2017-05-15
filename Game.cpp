@@ -98,6 +98,10 @@ void Game::Initialize(HWND window, int width, int height)
 	//回転角の初期化
 	head_rot = 0.0f;
 
+	//カメラの生成
+	m_Camera = std::make_unique<FollowCamera>(m_outputWidth, m_outputHeight);
+
+	head_pos = Vector3(0, 0, 30);
 }
 
 // Executes the basic game loop.
@@ -216,6 +220,33 @@ void Game::Update(DX::StepTimer const& timer)
 	Matrix transmat = Matrix::CreateTranslation(head_pos);
 	Matrix rotmat = Matrix::CreateRotationY(head_rot);
 	head_world = rotmat * transmat;
+
+	
+
+	//時機に追従するカメラ
+	//const float CAMERA_DISTANCE = 5.f;
+
+	/*Vector3 eyepos, refpos;
+
+	refpos = head_pos + Vector3(0, 2, 0);
+
+	Vector3 cameraV(0, 0, CAMERA_DISTANCE);
+
+	Matrix rotmat = Matrix::CreateRotationY(head_angle);
+
+	cameraV = Vector3::TransformNormal(cameraV, rotmat);
+
+	eyepos = refpos + cameraV;*/
+
+	m_Camera->SetTargetPos(head_pos);
+	m_Camera->SetTargetAngle(head_rot);
+
+	//カメラの更新
+	m_Camera->SetEyePos(head_pos);
+
+	m_Camera->Update();
+	m_view = m_Camera->GetViewMatrix();
+	m_proj = m_Camera->GetProjectionMatrix();
 	
 }
 
@@ -254,6 +285,19 @@ void Game::Render()
 	m_d3dContext->OMSetDepthStencilState(m_states->DepthNone(), 0);
 	m_d3dContext->RSSetState(m_states->CullNone());
 
+	////カメラの位置
+	//Vector3 eyepos(0, 0, 5)
+	////	カメラの見ている先
+	//Vector3 refpos(0, 0, 0);
+	////カメラの上方向ベクトル
+	//static float angle = 0.0f;
+	//
+	//Vector3 upvec(0, 1, 0);
+	//upvec.Normalize();
+
+	////ビュー行列の作成
+	//m_view = Matrix::CreateLookAt(eyepos,refpos,upvec);
+
 	//ビュー行列を作成
 	//m_view = Matrix::CreateLookAt(
 	//	//カメラ視点
@@ -266,13 +310,23 @@ void Game::Render()
 
 	//デバッグカメラからビュー行列を取得
 	//m_view = m_debugCamera->GetCameraMatrix();
-	//プロジェクション行列を作成
-	/*m_proj = Matrix::CreatePerspectiveFieldOfView(
-		XM_PI / 4.f, //視野角
-		float(m_outputWidth) / float(m_outputHeight), //アスペクト比
-		0.1f, //ニアクリップ
-		500.f  //ファークリップ
-	);*/
+	//
+	//float fovY = XMConvertToRadians(60.f);
+	////アスペクト比
+	//float aspect =(float) m_outputWidth / m_outputHeight;
+	////ニアクリップ(手前の表示限界距離)
+	//float nearclip = 0.1f;
+	////ファークリップ(区の表示限界距離)
+	//float farclip = 10.f;
+
+
+	////プロジェクション行列を作成
+	//m_proj = Matrix::CreatePerspectiveFieldOfView(fovY, aspect, nearclip, farclip
+		//XM_PI / 4.f, //視野角
+		//float(m_outputWidth) / float(m_outputHeight), //アスペクト比
+		//0.1f, //ニアクリップ
+		//500.f  //ファークリップ
+	//);
 
 	m_effect->SetWorld(m_world);
 	m_effect->SetView(m_view);

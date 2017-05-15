@@ -4,6 +4,6 @@
   Assets\head.FBX
   Assets\SkyDome.FBX
   Assets\TeaPot.FBX
-  Game.cpp
+  FollowCamera.cpp
   GameEngine_TK.vcxproj -> C:\Users\s162056\Documents\ゲームエンジン_DirectXTK\GameEngine_TK\Debug\GameEngine_TK.exe
   GameEngine_TK.vcxproj -> C:\Users\s162056\Documents\ゲームエンジン_DirectXTK\GameEngine_TK\Debug\GameEngine_TK.pdb (Full PDB)
